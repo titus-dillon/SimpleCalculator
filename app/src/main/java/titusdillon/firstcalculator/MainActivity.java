@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         double num2 = Double.parseDouble(equation.get(operatorLocation + 1));
         double result = 0;
 
-        if (operator == "*") {
+        if (operator.equals("*")) {
             result = num1 * num2;
         } else {
             result = num1 / num2;
