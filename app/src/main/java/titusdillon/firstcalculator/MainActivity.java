@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> equation = new ArrayList<>();
-    String operators = "+-*/";
+    String operators = "+-*/^";
     boolean drop = false;
 
     void cleanEquation() {
@@ -29,35 +29,50 @@ public class MainActivity extends AppCompatActivity {
         return drop;
     }
 
-    void calculateMultDiv(String operator) {
+    double calculateExponent(double base, double exponent) {
+        if (exponent == 1) {
+            return base;
+        }
+        return base * calculateExponent(base, exponent - 1);
+    }
+    void calculateMultDivPow(String operator) {
 
         int operatorLocation = equation.indexOf(operator);
         double num1 = Double.parseDouble(equation.get(operatorLocation - 1));
         double num2 = Double.parseDouble(equation.get(operatorLocation + 1));
         double result = 0;
 
-        if (operator.equals("*")) {
-            result = num1 * num2;
-        } else {
-            result = num1 / num2;
+        switch (operator) {
+            case "*":
+                result = num1 * num2;
+                break;
+            case "/":
+                result = num1 / num2;
+                break;
+            case "^":
+                result = calculateExponent(num1, num2);
+                break;
         }
 
         // Replaces the operator with the result from the operation then removes the operands
         // before and after the operator location's previous position.
         // NOTE: Although the third operation may seem to remove the new result placed there,
-        // after the removal of the first operand the index of the second, will be one value
+        // after the removal of the first operand the index of the second will be one value
         // lower: equivalent to the value of [operatorLocation]
         equation.set(operatorLocation, Double.toString(result));
         equation.remove(operatorLocation - 1);
         equation.remove(operatorLocation);
     }
-    void calculate(View view, TextView screen) {
+    void calculate(TextView screen) {
 
+        while (equation.contains("^")) {
+            calculateMultDivPow("^");
+        }
         while (equation.contains("*")) {
-            calculateMultDiv("*");
+            calculateMultDivPow("*");
         }
         while (equation.contains("/")) {
-            calculateMultDiv("/");
+            calculateMultDivPow("/");
         }
         while (equation.contains("-")) {
             int op = equation.indexOf("-");
@@ -72,14 +87,19 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < equation.size(); i++) {
             total += Double.parseDouble(equation.get(i));
         }
+
+        // Will allow user to continue input from previous calculation
+        equation.clear();
+        equation.add(Double.toString(total));
+
         screen.append("\n");
-        screen.append(Double.toString(total));
+        screen.append("= " + Double.toString(total));
     }
 
     // Appends numerical inputs to end of last entry until an operator is entered where it
     // will then enter the operator as a new index then add another index for numerical
     // input.
-    void onButtonClick(View view, TextView box, String symbol) {
+    void onButtonClick(TextView box, String symbol) {
 
         if (operators.contains(symbol)) {
             equation.add(symbol);
@@ -119,16 +139,20 @@ public class MainActivity extends AppCompatActivity {
                             (Button) findViewById(R.id.buttonplus),
                             (Button) findViewById(R.id.buttonminus),
                             (Button) findViewById(R.id.buttontimes),
-                            (Button) findViewById(R.id.buttondivide)};
+                            (Button) findViewById(R.id.buttondivide),
+                            (Button) findViewById(R.id.buttonlparen),
+                            (Button) findViewById(R.id.buttonrparen),
+                            (Button) findViewById(R.id.buttonpower),
+                            (Button) findViewById(R.id.buttondec)};
 
-        final String inputs[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/"};
+        final String inputs[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "(", ")", "^", "."};
 
         buttonequals.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculate(view, screen);
+                calculate(screen);
                 setDrop(true);
-                cleanEquation();
+                //cleanEquation();
             }
         });
 
@@ -148,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                     if (checkDrop()) {
                         screen.append("\n");
                     }
-                    onButtonClick(view, screen, inputs[x]);
+                    onButtonClick(screen, inputs[x]);
                     setDrop(false);
                 }
             });
