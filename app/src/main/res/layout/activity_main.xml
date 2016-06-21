@@ -30,22 +30,22 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="("
+                android:text="@string/leftp"
                 android:id="@+id/buttonlparen"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text=")"
+                android:text="@string/rightp"
                 android:id="@+id/buttonrparen"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="^"
+                android:text="@string/power"
                 android:id="@+id/buttonpower"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="CLR"
+                android:text="@string/clear"
                 android:id="@+id/buttonclr"/>
         </TableRow>
 
@@ -54,22 +54,22 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="7"
+                android:text="@string/number7"
                 android:id="@+id/button7"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="8"
+                android:text="@string/number8"
                 android:id="@+id/button8"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="9"
+                android:text="@string/number9"
                 android:id="@+id/button9"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="+"
+                android:text="@string/plus"
                 android:id="@+id/buttonplus"/>
         </TableRow>
 
@@ -78,22 +78,22 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="4"
+                android:text="@string/number4"
                 android:id="@+id/button4"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="5"
+                android:text="@string/number5"
                 android:id="@+id/button5"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="6"
+                android:text="@string/number6"
                 android:id="@+id/button6"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="-"
+                android:text="@string/minus"
                 android:id="@+id/buttonminus"/>
         </TableRow>
 
@@ -102,22 +102,22 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="1"
+                android:text="@string/number1"
                 android:id="@+id/button1"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="2"
+                android:text="@string/number2"
                 android:id="@+id/button2"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="3"
+                android:text="@string/number3"
                 android:id="@+id/button3"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="x"
+                android:text="@string/multiply"
                 android:id="@+id/buttontimes"/>
         </TableRow>
 
@@ -126,22 +126,22 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="0"
+                android:text="@string/number0"
                 android:id="@+id/button0"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="."
+                android:text="@string/decimal"
                 android:id="@+id/buttondec"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="="
+                android:text="@string/equals"
                 android:id="@+id/buttonequals"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="/"
+                android:text="@string/divide"
                 android:id="@+id/buttondivide"/>
         </TableRow>
     </TableLayout>
