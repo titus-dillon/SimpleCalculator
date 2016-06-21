@@ -30,6 +30,30 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
+                android:text="("
+                android:id="@+id/buttonlparen"/>
+            <Button
+                android:layout_width="@dimen/button_width"
+                android:layout_height="@dimen/button_height"
+                android:text=")"
+                android:id="@+id/buttonrparen"/>
+            <Button
+                android:layout_width="@dimen/button_width"
+                android:layout_height="@dimen/button_height"
+                android:text="^"
+                android:id="@+id/buttonpower"/>
+            <Button
+                android:layout_width="@dimen/button_width"
+                android:layout_height="@dimen/button_height"
+                android:text="CLR"
+                android:id="@+id/buttonclr"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent">
+            <Button
+                android:layout_width="@dimen/button_width"
+                android:layout_height="@dimen/button_height"
                 android:text="7"
                 android:id="@+id/button7"/>
             <Button
@@ -107,8 +131,8 @@
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
-                android:text="CLR"
-                android:id="@+id/buttonclr"/>
+                android:text="."
+                android:id="@+id/buttondec"/>
             <Button
                 android:layout_width="@dimen/button_width"
                 android:layout_height="@dimen/button_height"
