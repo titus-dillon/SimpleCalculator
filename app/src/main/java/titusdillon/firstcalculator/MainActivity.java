@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> equation = new ArrayList<>();
-    String operators = "+-*/^";
+    String operators = "+-*/^()";
     boolean drop = false;
 
     void cleanEquation() {
@@ -21,96 +21,166 @@ public class MainActivity extends AppCompatActivity {
         equation.add("0");
     }
 
+    /*
+    * These drop functions are for making a new line after a calculation is outputted without
+    * having to create extra space before another input
+    */
     void setDrop(boolean drop) {
         this.drop = drop;
     }
-
     boolean checkDrop() {
         return drop;
     }
 
+    void printAnswer(TextView screen) {
+        screen.append("\n");
+        screen.append("= " + equation.get(0));
+    }
+
     double calculateExponent(double base, double exponent) {
-        if (exponent == 1) {
-            return base;
-        }
+        if (exponent == 1) { return base; }
         return base * calculateExponent(base, exponent - 1);
     }
-    void calculateMultDivPow(String operator) {
+    void calculateMultDivPow(String operator, ArrayList<String> problem) {
 
-        int operatorLocation = equation.indexOf(operator);
-        double num1 = Double.parseDouble(equation.get(operatorLocation - 1));
-        double num2 = Double.parseDouble(equation.get(operatorLocation + 1));
-        double result = 0;
+        int operatorLocation = problem.indexOf(operator);
+        double num1 = Double.parseDouble(problem.get(operatorLocation - 1));
+        double num2 = Double.parseDouble(problem.get(operatorLocation + 1));
+        double result;
 
         switch (operator) {
+            case "^":
+                result = calculateExponent(num1, num2);
+                break;
             case "*":
                 result = num1 * num2;
                 break;
             case "/":
                 result = num1 / num2;
                 break;
-            case "^":
-                result = calculateExponent(num1, num2);
+            default:
+                result = 0;
                 break;
         }
-
-        // Replaces the operator with the result from the operation then removes the operands
-        // before and after the operator location's previous position.
-        // NOTE: Although the third operation may seem to remove the new result placed there,
-        // after the removal of the first operand the index of the second will be one value
-        // lower: equivalent to the value of [operatorLocation]
-        equation.set(operatorLocation, Double.toString(result));
-        equation.remove(operatorLocation - 1);
-        equation.remove(operatorLocation);
+        /*
+        * Replaces the operator with the result from the operation then removes the operands before
+        * and after the operator location's previous position.
+        * NOTE: Although the third operation may seem to remove the new result placed there, after
+        * the removal of the first operand the index of the second will be one value lower:
+        * equivalent to the value of [operatorLocation]
+        */
+        problem.set(operatorLocation, Double.toString(result));
+        problem.remove(operatorLocation - 1);
+        problem.remove(operatorLocation);
     }
-    void calculate(TextView screen) {
+    void calculate(ArrayList<String> problem) {
 
-        while (equation.contains("^")) {
-            calculateMultDivPow("^");
-        }
-        while (equation.contains("*")) {
-            calculateMultDivPow("*");
-        }
-        while (equation.contains("/")) {
-            calculateMultDivPow("/");
-        }
-        while (equation.contains("-")) {
-            int op = equation.indexOf("-");
-            equation.set(op + 1, "-" + equation.get(op + 1));
-            equation.remove(op);
-        }
-        while (equation.contains("+")) {
-            equation.remove("+");
-        }
+        int i;
 
+        /*
+        * Recursively digs out from rightmost open parenthesis solving each problem until the first
+        * close parenthesis it finds. Replaces entire parenthesis statement with calculated answer
+        * and repeats until no parentheses are found.
+        * NOTE: Both the while and if statements handle parentheses.
+        */
+        while (problem.contains("(")) {
+            ArrayList<String> subProblem = new ArrayList<>();
+            for (i = problem.lastIndexOf("(")+1; i < problem.size(); i++) {
+                subProblem.add(problem.get(i));
+            }
+
+            calculate(subProblem);
+            for (i = problem.lastIndexOf("("); !problem.get(i).equals(")"); i++) {
+                // This space is needed so "i" increment correctly
+            }
+
+            for (; i > problem.lastIndexOf("("); i--) {
+                problem.remove(i);
+            }
+            problem.set(problem.lastIndexOf("("), subProblem.get(0));
+        }
+        if (problem.contains(")")) {
+            ArrayList<String> subProblem = new ArrayList<>();
+            for (i = 0; i < problem.indexOf(")"); i++) {
+                subProblem.add(problem.get(i));
+            }
+
+            calculate(subProblem);
+            for (i = problem.indexOf(")"); i != 0; i--) {
+                problem.remove(i);
+            }
+            problem.set(i, subProblem.get(0));
+            return;
+        }
+        while (problem.contains("^")) {
+            calculateMultDivPow("^", problem);
+        }
+        while (problem.contains("*")) {
+            calculateMultDivPow("*", problem);
+        }
+        while (problem.contains("/")) {
+            calculateMultDivPow("/", problem);
+        }
+        while (problem.contains("-")) {
+            int op = problem.indexOf("-");
+            problem.set(op + 1, problem.get(op) + problem.get(op + 1));
+            problem.remove(op);
+        }
+        while (problem.contains("--")) {
+            int op = problem.indexOf("--");
+            problem.remove(op);
+        }
+        while (problem.contains("+")) {
+            problem.remove("+");
+        }
         double total = 0.0;
-        for (int i = 0; i < equation.size(); i++) {
-            total += Double.parseDouble(equation.get(i));
+        for (i = 0; i < problem.size(); i++) {
+            total += Double.parseDouble(problem.get(i));
         }
 
-        // Will allow user to continue input from previous calculation
-        equation.clear();
-        equation.add(Double.toString(total));
-
-        screen.append("\n");
-        screen.append("= " + Double.toString(total));
+        /*
+        * Allows user to continue input from previous calculation
+        */
+        problem.clear();
+        problem.add(Double.toString(total));
     }
 
-    // Appends numerical inputs to end of last entry until an operator is entered where it
-    // will then enter the operator as a new index then add another index for numerical
-    // input.
-    void onButtonClick(TextView box, String symbol) {
+    /*
+    * Appends numerical inputs to end of last entry if it is numerical, otherwise adds input to new
+    * index. Operators are added as new indices. Additional multiplication symbols are added to the
+    * front and back of parenthesis depending on the adjacent values.
+    */
+    void onButtonClick(TextView screen, String symbol) {
 
-        if (operators.contains(symbol)) {
+        if (equation.size() == 1 && equation.get(0).equals("0")) {
+            equation.set(0, symbol);
+        }
+        else if (operators.contains(symbol)) {
+            /*
+            * If the symbol before a right parenthesis is numerical, add a multiplication symbol
+            * before the parenthesis
+            */
+            if (symbol.equals("(")
+                    && (!operators.contains(equation.get(equation.size()-1)))
+                    && !equation.get(equation.size()-1).equals("0")) {
+                equation.add("*");
+            }
             equation.add(symbol);
-            equation.add("0");
         }
         else {
+            if (checkDrop()) {
+                cleanEquation();
+            }
+            if (equation.get(equation.size()-1).equals(")")) {
+                equation.add("*");
+            }
+            if (operators.contains(equation.get(equation.size() -1))) {
+                equation.add("");
+            }
             int currentNumber = equation.size() - 1;
             equation.set(currentNumber, equation.get(currentNumber) + symbol);
         }
-
-        box.append(symbol);
+        screen.append(symbol);
     }
 
     @Override
@@ -150,17 +220,28 @@ public class MainActivity extends AppCompatActivity {
         buttonequals.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculate(screen);
+                calculate(equation);
+                printAnswer(screen);
                 setDrop(true);
-                //cleanEquation();
             }
         });
 
+        /*
+        * A click will move screen up one line while a hold will clear the screen
+        */
         buttonclr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                screen.append("\n");
+                cleanEquation();
+            }
+        });
+        buttonclr.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
                 screen.setText("");
                 cleanEquation();
+                return true;
             }
         });
 
