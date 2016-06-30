@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> equation = new ArrayList<>();
-    String operators = "+-*/^()";
+    String operators = "+-\u00d7\u00f7^()";
     boolean newLineStandby = false;
 
     void cleanEquation() {
@@ -54,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
             case "^":
                 result = calculateExponent(num1, num2);
                 break;
-            case "*":
+            case "\u00d7":
                 result = num1 * num2;
                 break;
-            case "/":
+            case "\u00f7":
                 result = num1 / num2;
                 break;
             default:
@@ -130,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
         while (problem.contains("^")) {
             calculateMultDivPow("^", problem);
         }
-        while (problem.contains("*")) {
-            calculateMultDivPow("*", problem);
+        while (problem.contains("\u00d7")) {
+            calculateMultDivPow("\u00d7", problem);
         }
-        while (problem.contains("/")) {
-            calculateMultDivPow("/", problem);
+        while (problem.contains("\u00f7")) {
+            calculateMultDivPow("\u00f7", problem);
         }
         while (problem.contains("+")) {
             problem.remove("+");
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         else if (operators.contains(symbol)) {
 
             if (symbol.equals("(") && !isLastSymbolOperator && !isLastSymbolZero) {
-                equation.add("*");
+                equation.add("\u00d7");
             }
             equation.add(symbol);
         }
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 cleanEquation();
             }
             if (equation.get(equation.size()-1).equals(")")) {
-                equation.add("*");
+                equation.add("\u00d7");
             }
             if (isLastSymbolOperator) {
                 equation.add("");
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                             (Button) findViewById(R.id.buttonpower),
                             (Button) findViewById(R.id.buttondec)};
 
-        final String inputs[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "(", ")", "^", "."};
+        final String inputs[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "\u00d7", "\u00f7", "(", ")", "^", "."};
 
         buttonequals.setOnClickListener(new View.OnClickListener() {
             @Override
