@@ -14,22 +14,11 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> equation = new ArrayList<>();
     String operators = "+-*/^()";
-    boolean drop = false;
+    boolean newLineStandby = false;
 
     void cleanEquation() {
         equation.clear();
         equation.add("0");
-    }
-
-    /*
-    * These drop functions are for making a new line after a calculation is outputted without
-    * having to create extra space before another input
-    */
-    void setDrop(boolean drop) {
-        this.drop = drop;
-    }
-    boolean checkDrop() {
-        return drop;
     }
 
     void printAnswer(TextView screen) {
@@ -38,9 +27,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     double calculateExponent(double base, double exponent) {
-        if (exponent == 1) { return base; }
+        if (exponent == 1) {
+            return base;
+        }
+        // TODO: implement fraction exponents
+        /*
+        if (exponent > 0 && exponent < 1) {
+            return exponent-th root of base * calculateExponent(base, 0);
+        }
+        change first if to:
+        if (exponent == 0) {
+            return 1;
+        }
+        */
         return base * calculateExponent(base, exponent - 1);
     }
+
     void calculateMultDivPow(String operator, ArrayList<String> problem) {
 
         int operatorLocation = problem.indexOf(operator);
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 result = 0;
                 break;
         }
+
         /*
         * Replaces the operator with the result from the operation then removes the operands before
         * and after the operator location's previous position.
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         problem.remove(operatorLocation - 1);
         problem.remove(operatorLocation);
     }
+
     void calculate(ArrayList<String> problem) {
 
         int i;
@@ -91,12 +95,13 @@ public class MainActivity extends AppCompatActivity {
 
             calculate(subProblem);
             for (i = problem.lastIndexOf("("); !problem.get(i).equals(")"); i++) {
-                // This space is needed so "i" increment correctly
+                // This space is needed so "i" increments correctly
             }
 
             for (; i > problem.lastIndexOf("("); i--) {
                 problem.remove(i);
             }
+
             problem.set(problem.lastIndexOf("("), subProblem.get(0));
         }
         if (problem.contains(")")) {
@@ -109,17 +114,9 @@ public class MainActivity extends AppCompatActivity {
             for (i = problem.indexOf(")"); i != 0; i--) {
                 problem.remove(i);
             }
+
             problem.set(i, subProblem.get(0));
             return;
-        }
-        while (problem.contains("^")) {
-            calculateMultDivPow("^", problem);
-        }
-        while (problem.contains("*")) {
-            calculateMultDivPow("*", problem);
-        }
-        while (problem.contains("/")) {
-            calculateMultDivPow("/", problem);
         }
         while (problem.contains("-")) {
             int op = problem.indexOf("-");
@@ -130,9 +127,19 @@ public class MainActivity extends AppCompatActivity {
             int op = problem.indexOf("--");
             problem.remove(op);
         }
+        while (problem.contains("^")) {
+            calculateMultDivPow("^", problem);
+        }
+        while (problem.contains("*")) {
+            calculateMultDivPow("*", problem);
+        }
+        while (problem.contains("/")) {
+            calculateMultDivPow("/", problem);
+        }
         while (problem.contains("+")) {
             problem.remove("+");
         }
+
         double total = 0.0;
         for (i = 0; i < problem.size(); i++) {
             total += Double.parseDouble(problem.get(i));
@@ -148,37 +155,36 @@ public class MainActivity extends AppCompatActivity {
     /*
     * Appends numerical inputs to end of last entry if it is numerical, otherwise adds input to new
     * index. Operators are added as new indices. Additional multiplication symbols are added to the
-    * front and back of parenthesis depending on the adjacent values.
+    * front and back of parenthesis depending on the outside values.
     */
-    void onButtonClick(TextView screen, String symbol) {
+    void handleInput(TextView screen, String symbol) {
 
-        if (equation.size() == 1 && equation.get(0).equals("0")) {
+        boolean isLastSymbolOperator = operators.contains(equation.get(equation.size()-1));
+        boolean isLastSymbolZero = equation.get(equation.size()-1).equals("0");
+
+        if (equation.size() == 1 && isLastSymbolZero) {
             equation.set(0, symbol);
         }
         else if (operators.contains(symbol)) {
-            /*
-            * If the symbol before a right parenthesis is numerical, add a multiplication symbol
-            * before the parenthesis
-            */
-            if (symbol.equals("(")
-                    && (!operators.contains(equation.get(equation.size()-1)))
-                    && !equation.get(equation.size()-1).equals("0")) {
+
+            if (symbol.equals("(") && !isLastSymbolOperator && !isLastSymbolZero) {
                 equation.add("*");
             }
             equation.add(symbol);
         }
         else {
-            if (checkDrop()) {
+
+            if (newLineStandby) {
                 cleanEquation();
             }
             if (equation.get(equation.size()-1).equals(")")) {
                 equation.add("*");
             }
-            if (operators.contains(equation.get(equation.size() -1))) {
+            if (isLastSymbolOperator) {
                 equation.add("");
             }
-            int currentNumber = equation.size() - 1;
-            equation.set(currentNumber, equation.get(currentNumber) + symbol);
+            int currentEntry = equation.size() - 1;
+            equation.set(currentEntry, equation.get(currentEntry) + symbol);
         }
         screen.append(symbol);
     }
@@ -222,13 +228,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 calculate(equation);
                 printAnswer(screen);
-                setDrop(true);
+                newLineStandby = true;
             }
         });
 
-        /*
-        * A click will move screen up one line while a hold will clear the screen
-        */
         buttonclr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -250,11 +253,11 @@ public class MainActivity extends AppCompatActivity {
             buttons[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (checkDrop()) {
+                    if (newLineStandby) {
                         screen.append("\n");
                     }
-                    onButtonClick(screen, inputs[x]);
-                    setDrop(false);
+                    handleInput(screen, inputs[x]);
+                    newLineStandby = false;
                 }
             });
         }
