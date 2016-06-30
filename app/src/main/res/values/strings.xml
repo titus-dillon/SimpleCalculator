@@ -12,8 +12,8 @@
     <string name="number9">9</string>
     <string name="plus">+</string>
     <string name="minus">-</string>
-    <string name="divide">/</string>
-    <string name="multiply">*</string>
+    <string name="divide">&#247;</string>
+    <string name="multiply">&#215;</string>
     <string name="power">^</string>
     <string name="leftp">(</string>
     <string name="rightp">)</string>
