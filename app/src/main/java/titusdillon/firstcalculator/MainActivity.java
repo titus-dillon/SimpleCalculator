@@ -26,20 +26,27 @@ public class MainActivity extends AppCompatActivity {
         screen.append("= " + equation.get(0));
     }
 
+    void removeOldSymbol(TextView screen) {
+        CharSequence text = screen.getText();
+        text = text.subSequence(0, text.length() - 1);
+
+        screen.setText(text);
+    }
+
+    // double calculateRoot(int nthroot, double number) {}
+
     double calculateExponent(double base, double exponent) {
-        if (exponent == 1) {
-            return base;
-        }
-        // TODO: implement fraction exponents
-        /*
-        if (exponent > 0 && exponent < 1) {
-            return exponent-th root of base * calculateExponent(base, 0);
-        }
-        change first if to:
+
         if (exponent == 0) {
-            return 1;
+            return 1.0;
+        }
+
+        /* TODO: implement fraction exponent
+        if (exponent > 0 && exponent < 1) {
+            return calculateRoot() * calculateExponent(base, 0);
         }
         */
+
         return base * calculateExponent(base, exponent - 1);
     }
 
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         * Recursively digs out from rightmost open parenthesis solving each problem until the first
         * close parenthesis it finds. Replaces entire parenthesis statement with calculated answer
         * and repeats until no parentheses are found.
-        * NOTE: Both the while and if statements handle parentheses.
+        * NOTE: Both the first while and if statements handle parentheses.
         */
         while (problem.contains("(")) {
             ArrayList<String> subProblem = new ArrayList<>();
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
             calculate(subProblem);
             for (i = problem.lastIndexOf("("); !problem.get(i).equals(")"); i++) {
-                // This space is needed so "i" increments correctly
+                // This space is needed so "i" increments (for some reason)
             }
 
             for (; i > problem.lastIndexOf("("); i--) {
@@ -118,15 +125,13 @@ public class MainActivity extends AppCompatActivity {
             problem.set(i, subProblem.get(0));
             return;
         }
+        // Converts numbers proceeded by - into negative number
         while (problem.contains("-")) {
             int op = problem.indexOf("-");
             problem.set(op + 1, problem.get(op) + problem.get(op + 1));
             problem.remove(op);
         }
-        while (problem.contains("--")) {
-            int op = problem.indexOf("--");
-            problem.remove(op);
-        }
+
         while (problem.contains("^")) {
             calculateMultDivPow("^", problem);
         }
@@ -145,9 +150,7 @@ public class MainActivity extends AppCompatActivity {
             total += Double.parseDouble(problem.get(i));
         }
 
-        /*
-        * Allows user to continue input from previous calculation
-        */
+        // Allows user to continue input from previous calculation
         problem.clear();
         problem.add(Double.toString(total));
     }
@@ -159,16 +162,38 @@ public class MainActivity extends AppCompatActivity {
     */
     void handleInput(TextView screen, String symbol) {
 
-        boolean isLastSymbolOperator = operators.contains(equation.get(equation.size()-1));
-        boolean isLastSymbolZero = equation.get(equation.size()-1).equals("0");
+        String lastSymbol = equation.get(equation.size()-1);
+        boolean isLastSymbolOperator = operators.contains(lastSymbol);
+        boolean isLastSymbolZero = lastSymbol.equals("0");
 
         if (equation.size() == 1 && isLastSymbolZero) {
             equation.set(0, symbol);
         }
         else if (operators.contains(symbol)) {
 
-            if (symbol.equals("(") && !isLastSymbolOperator && !isLastSymbolZero) {
+            System.out.println("Symbol");
+            // prevents operators from being inputted twice (exception of parentheses)
+            // - removes ability for symbols to replace parentheses
+            // TODO: BUG - "-" causes new input to be considered, and thus allows multiple operators to be consecutively inputted
+            if (!symbol.equals("(") && !symbol.equals(")") && !symbol.equals("-") && isLastSymbolOperator) {
+
+                if (symbol.equals(lastSymbol)) {
+                    return;
+                }
+                else if (!lastSymbol.equals("(") && !lastSymbol.equals(")")) {
+                    equation.remove(equation.size() - 1);
+                    removeOldSymbol(screen);
+                }
+            }
+            // adds multiplication operator between parentheses & numbers
+            if (symbol.equals("(") && ((!isLastSymbolOperator && !isLastSymbolZero) || lastSymbol.equals(")"))) {
                 equation.add("\u00d7");
+            }
+            // changes double negatives to addition
+            if (symbol.equals("-") && lastSymbol.equals("-")) {
+                equation.set(equation.size() - 1, "+");
+                screen.append(symbol);
+                return;
             }
             equation.add(symbol);
         }
@@ -180,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             if (equation.get(equation.size()-1).equals(")")) {
                 equation.add("\u00d7");
             }
-            if (isLastSymbolOperator) {
+            if (isLastSymbolOperator && !lastSymbol.equals("-")) {
                 equation.add("");
             }
             int currentEntry = equation.size() - 1;
