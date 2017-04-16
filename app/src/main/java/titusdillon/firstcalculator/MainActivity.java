@@ -1,14 +1,19 @@
 package titusdillon.firstcalculator;
 
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+//TODO: BUG - text at top of screen gets cut off and extra space gets added to bottom - cant scroll up to see previous work
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,14 +21,22 @@ public class MainActivity extends AppCompatActivity {
     String operators = "+-\u00d7\u00f7^()";
     boolean newLineStandby = false;
 
+    ScrollView scroll;
+
     void cleanEquation() {
         equation.clear();
         equation.add("0");
     }
 
-    void printAnswer(TextView screen) {
-        screen.append("\n");
-        screen.append("= " + equation.get(0));
+    void printAnswer(LinearLayout screen) {
+
+        TextView answerText = new TextView(getApplicationContext());
+        answerText.setText("= " + equation.get(0));
+        answerText.setTextSize(40);
+        answerText.setTextColor(Color.BLACK);
+        answerText.setBackgroundColor(Color.rgb(230,230,255));
+
+        screen.addView(answerText);
     }
 
     void removeOldSymbol(TextView screen) {
@@ -160,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     * index. Operators are added as new indices. Additional multiplication symbols are added to the
     * front and back of parenthesis depending on the outside values.
     */
-    void handleInput(TextView screen, String symbol) {
+    void handleInput(LinearLayout screen, String symbol) {
 
         String lastSymbol = equation.get(equation.size()-1);
         boolean isLastSymbolOperator = operators.contains(lastSymbol);
@@ -182,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if (!lastSymbol.equals("(") && !lastSymbol.equals(")")) {
                     equation.remove(equation.size() - 1);
-                    removeOldSymbol(screen);
+                    removeOldSymbol((TextView)screen.getChildAt(screen.getChildCount() - 1));
                 }
             }
             // adds multiplication operator between parentheses & numbers
@@ -192,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
             // changes double negatives to addition
             if (symbol.equals("-") && lastSymbol.equals("-")) {
                 equation.set(equation.size() - 1, "+");
-                screen.append(symbol);
+                TextView currentText = (TextView) screen.getChildAt(screen.getChildCount() - 1);
+                currentText.append(symbol);
                 return;
             }
             equation.add(symbol);
@@ -211,7 +225,8 @@ public class MainActivity extends AppCompatActivity {
             int currentEntry = equation.size() - 1;
             equation.set(currentEntry, equation.get(currentEntry) + symbol);
         }
-        screen.append(symbol);
+        TextView currentText = (TextView) screen.getChildAt(screen.getChildCount() - 1);
+        currentText.append(symbol);
     }
 
     @Override
@@ -222,8 +237,20 @@ public class MainActivity extends AppCompatActivity {
 
         cleanEquation();
 
-        final TextView screen = (TextView) findViewById(R.id.textView);
-        screen.setMovementMethod(new ScrollingMovementMethod());
+        scroll = (ScrollView) findViewById(R.id.scroll);
+        final LinearLayout screen = (LinearLayout) findViewById(R.id.screen);
+
+        scroll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                scroll.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scroll.fullScroll(ScrollView.FOCUS_DOWN);
+                    }
+                });
+            }
+        });
 
         Button buttonequals = (Button) findViewById(R.id.buttonequals);
         Button buttonclr = (Button) findViewById(R.id.buttonclr);
@@ -260,15 +287,20 @@ public class MainActivity extends AppCompatActivity {
         buttonclr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                screen.append("\n");
+                TextView blankView = new TextView(getApplicationContext());
+                blankView.setTextSize(40);
+                blankView.setTextColor(Color.BLACK);
+
+                screen.addView(blankView);
                 cleanEquation();
             }
         });
         buttonclr.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                screen.setText("");
+                screen.removeAllViews();
                 cleanEquation();
+                newLineStandby = true;
                 return true;
             }
         });
@@ -279,7 +311,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (newLineStandby) {
-                        screen.append("\n");
+                        TextView blankView = new TextView(getApplicationContext());
+                        blankView.setTextSize(40);
+                        blankView.setTextColor(Color.BLACK);
+
+                        screen.addView(blankView);
                     }
                     handleInput(screen, inputs[x]);
                     newLineStandby = false;
